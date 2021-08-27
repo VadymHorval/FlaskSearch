@@ -1,4 +1,4 @@
-Extract financial data from web site finance.yahoo.com  by a given company
+Extract financial data from web site finance.yahoo.com by a given company.
 Search Company dat -> Historical data -> max period data -> Download Data -> Save data to file -> Save data to database.
-REST API GET method  //api/<company name> - return company data
-Automatic CI/CD
+REST API GET method  //api/<company name> - return company data.
+Automatic CI/CD.
