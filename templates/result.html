@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<ul>
+<body>
+
+    <h1>Yahoo finance</h1>
+    <h1>{{title}}</h1>
+        {{ data | safe }}
+        {{ list | safe }}
+</body>
+</ul>
+{% endblock %}

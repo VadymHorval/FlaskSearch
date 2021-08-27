@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<ul>
+<body>
+<h1></h1>
+<ul>
+{% for file in data %}
+
+    <a href="{{ file }}"> Open file:</a>
+    <a name="идентификатор">{{ file }} </a>
+    <br>
+{% endfor %}
+</ul>
+</body>
+</ul>
+{% endblock %}
