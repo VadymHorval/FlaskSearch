@@ -6,7 +6,7 @@ import os
 import os.path
 import json
 from flask import Flask, render_template, request, redirect
-from flask_restful import Api, Resource
+from flask_restful import Api, Resource, reqparse
 
 
 app = Flask(__name__)
@@ -63,7 +63,7 @@ def saved_indatabes():
             con.execute("SELECT comp_name FROM files")
             if not con.fetchone():
                 return "No data in database yet"
-    except sqlite3.Error:
+    except:
         con.rollback()
     records = con.fetchall()
     for i in records:
@@ -85,11 +85,10 @@ def read_database(name):
             data = cur.fetchone()
             if not data:
                 return "No data in database yet"
-    except sqlite3.Error:
+    except:
         con.rollback()
     dr = pd.DataFrame([x.split(',') for x in data[0].split('\n')])
     return dr.to_html()
-
 
 def write_to_database(name, file_name, text):
     try:
@@ -101,36 +100,25 @@ def write_to_database(name, file_name, text):
             else:
                 cur.execute("INSERT INTO files (comp_name, file_name, data) VALUES (?,?,?)", (name, file_name, text))
                 con.commit()
-    except sqlite3.Error:
+    except:
         con.rollback()
 
 
 @app.route('/<string:name>')
 def verify_name(name):
     name = name.upper()
-
-    # routing processing for database data
     if name[0] == ':':
         name = name[1:]
         return render_template('result.html', list=read_database(name), title=name+' data')
     file_name = name + '.csv'
-
-    url_name = "https://query1.finance.yahoo.com/v7/finance/download/" + name + "" \
+    URL_NAME = "https://query1.finance.yahoo.com/v7/finance/download/" + name + "" \
                 "?period1=0&period2=9999999999&interval=1d&events=history&includeAdjustedClose=true"
-
-    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 '
+    HEADERS = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 '
                              '(KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-
-    r = requests.get(url_name, headers=headers)
-
-    # exit when company name was not found
+    r = requests.get(URL_NAME, headers=HEADERS)
     if '404 Not Found:' in r.text:
         return render_template('result.html', data='No data found for: ' + name)
-
-    # write data to database
     write_to_database(name, file_name, r.text)
-
-    # write data to file
     with open(file_name, 'w+') as f:
         f.write(r.text)
     df = pd.read_csv(file_name)
@@ -138,17 +126,8 @@ def verify_name(name):
 
 
 class DataView(Resource):
-    """API function. Processing GET function for url ..../api/<string:name>
-    Parameters:
-        name - the name of the company for which you want to receive data
-                if the data is not available for such company - a message
-                 will be returned
-    """
-
     @staticmethod
     def read_db_json(name):
-        """ Get data from database for "name"  """
-
         try:
             with sqlite3.connect("database.db") as con:
                 cur = con.cursor()
@@ -156,7 +135,7 @@ class DataView(Resource):
                 data = cur.fetchone()
                 if not data:
                     return {'message': 'company not found'}, 404
-        except sqlite3.Error:
+        except:
             con.rollback()
 
         return json.dumps(data[0])
@@ -168,5 +147,6 @@ class DataView(Resource):
 
 api.add_resource(DataView, '/api/<string:name>')
 
+#app.run( host='localhost', port=5000)
 if __name__ == '__main__':
     app.run()
