@@ -8,14 +8,20 @@ import json
 from flask import Flask, render_template, request, redirect
 from flask_restful import Api, Resource, reqparse
 
+
 app = Flask(__name__)
-api = Api(app)
 path = pathlib.Path('database.db')
+api = Api(app)
 
 if not path.exists():
     conn = sqlite3.connect('database.db')
     conn.execute('CREATE TABLE files (comp_name TEXT, file_name TEXT, data TEXT)')
     conn.close()
+
+
+@app.cli.command()
+def custom_run():
+    app.run()
 
 
 @app.route('/form')
@@ -101,7 +107,7 @@ def write_to_database(name, file_name, text):
 @app.route('/<string:name>')
 def verify_name(name):
     name = name.upper()
-    if name[0] is ':':
+    if name[0] == ':':
         name = name[1:]
         return render_template('result.html', list=read_database(name), title=name+' data')
     file_name = name + '.csv'
@@ -141,4 +147,6 @@ class DataView(Resource):
 
 api.add_resource(DataView, '/api/<string:name>')
 
-app.run(debug=True, host='localhost', port=5000)
+#app.run( host='localhost', port=5000)
+if __name__ == '__main__':
+    app.run()
