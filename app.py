@@ -63,7 +63,7 @@ def saved_indatabes():
             con.execute("SELECT comp_name FROM files")
             if not con.fetchone():
                 return "No data in database yet"
-    except:
+    except sqlite3.Error:
         con.rollback()
     records = con.fetchall()
     for i in records:
@@ -85,10 +85,11 @@ def read_database(name):
             data = cur.fetchone()
             if not data:
                 return "No data in database yet"
-    except:
+    except sqlite3.Error:
         con.rollback()
     dr = pd.DataFrame([x.split(',') for x in data[0].split('\n')])
     return dr.to_html()
+
 
 def write_to_database(name, file_name, text):
     try:
@@ -100,7 +101,7 @@ def write_to_database(name, file_name, text):
             else:
                 cur.execute("INSERT INTO files (comp_name, file_name, data) VALUES (?,?,?)", (name, file_name, text))
                 con.commit()
-    except:
+    except sqlite3.Error:
         con.rollback()
 
 
@@ -152,7 +153,7 @@ class DataView(Resource):
                 data = cur.fetchone()
                 if not data:
                     return {'message': 'company not found'}, 404
-        except:
+        except sqlite3.Error:
             con.rollback()
 
         return json.dumps(data[0])
@@ -164,6 +165,5 @@ class DataView(Resource):
 
 api.add_resource(DataView, '/api/<string:name>')
 
-#app.run( host='localhost', port=5000)
 if __name__ == '__main__':
     app.run()
