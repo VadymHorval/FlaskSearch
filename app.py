@@ -45,7 +45,7 @@ def saved_files():
     if len(file_list):
         return render_template('savedfiles.html', data=file_list)
     else:
-        return "No data files yet"
+        return "No data files yet."
 
 
 @app.route('/database', methods=['POST', 'GET'])
