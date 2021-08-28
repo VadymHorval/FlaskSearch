@@ -61,11 +61,11 @@ def saved_indatabes():
         with sqlite3.connect("database.db") as con:
             con = con.cursor()
             con.execute("SELECT comp_name FROM files")
-            if not con.fetchone():
+            records = con.fetchall()
+            if not records:
                 return "No data in database yet"
     except sqlite3.Error:
         con.rollback()
-    records = con.fetchall()
     for i in records:
         output_list.append(i[0])
     return render_template('indatabase.html', data=output_list)
@@ -78,6 +78,7 @@ def datescompany_from_dabase(name):
 
 
 def read_database(name):
+    """ Get data from database for "name"  """
     try:
         with sqlite3.connect("database.db") as con:
             cur = con.cursor()
@@ -92,6 +93,7 @@ def read_database(name):
 
 
 def write_to_database(name, file_name, text):
+    """ Write data to database """
     try:
         with sqlite3.connect("database.db") as con:
             cur = con.cursor()
@@ -105,7 +107,9 @@ def write_to_database(name, file_name, text):
         con.rollback()
 
 
+@app.route('/<string:name>')
 def verify_name(name):
+    # Unification name parameter
     name = name.upper()
 
     # routing processing for database data
@@ -114,8 +118,8 @@ def verify_name(name):
         return render_template('result.html', list=read_database(name), title=name+' data')
     file_name = name + '.csv'
 
-    url_name = "https://query1.finance.yahoo.com/v7/finance/download/" + name + "" \
-                "?period1=0&period2=9999999999&interval=1d&events=history&includeAdjustedClose=true"
+    url_name = "https://query1.finance.yahoo.com/v7/finance/download/"+name+"" \
+                "?period1=1523491200&period2=1630108800&interval=1d&events=history&includeAdjustedClose=true"
 
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 '
                              '(KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
@@ -166,4 +170,4 @@ class DataView(Resource):
 api.add_resource(DataView, '/api/<string:name>')
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
