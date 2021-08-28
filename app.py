@@ -126,8 +126,15 @@ def verify_name(name):
 
 
 class DataView(Resource):
+    """API function. Processing GET function for url ..../api/<string:name>
+    Parameters:
+        name - the name of the company for which you want to receive data
+                if the data is not available for such company - a message
+                 will be returned
+    """
     @staticmethod
     def read_db_json(name):
+        """ Get data from database for "name"  """
         try:
             with sqlite3.connect("database.db") as con:
                 cur = con.cursor()
