@@ -119,7 +119,7 @@ def verify_name(name):
     file_name = name + '.csv'
 
     url_name = "https://query1.finance.yahoo.com/v7/finance/download/"+name+"" \
-                "?period1=1523491200&period2=1630108800&interval=1d&events=history&includeAdjustedClose=true"
+                "?period1=0&period2=9999999999&interval=1d&events=history&includeAdjustedClose=true"
 
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 '
                              '(KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
